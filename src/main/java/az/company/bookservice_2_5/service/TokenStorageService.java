@@ -16,7 +16,7 @@ public class TokenStorageService {
     private final StringRedisTemplate redisTemplate;
     private final JwtService jwtService;
 
-    public void storeToken(String username, String token) {
+    public void storeAccessToken(String username, String token) {
         String key = ACCESS_TOKEN_PREFIX + username;
         redisTemplate.opsForValue().set(key, token, jwtService.getAccessTokenExpiration(), TimeUnit.MINUTES);
     }
@@ -26,7 +26,7 @@ public class TokenStorageService {
         redisTemplate.opsForValue().set(key, token, jwtService.getRefreshTokenExpiration(), TimeUnit.MINUTES);
     }
 
-    public boolean isTokenValid(String username, String token) {
+    public boolean isAccessTokenValid(String username, String token) {
         String key = ACCESS_TOKEN_PREFIX + username;
         String storedToken = redisTemplate.opsForValue().get(key);
         return token.equals(storedToken);
@@ -38,7 +38,7 @@ public class TokenStorageService {
         return token.equals(storedToken);
     }
 
-    public void removeToken(String username) {
+    public void removeAccessToken(String username) {
         redisTemplate.delete(ACCESS_TOKEN_PREFIX + username);
     }
 

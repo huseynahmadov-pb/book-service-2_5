@@ -53,11 +53,7 @@ public class JwtService {
     }
 
     public boolean isRefreshToken(String token) {
-        try {
-            return "refresh".equals(extractAllClaims(token).get("type", String.class));
-        } catch (Exception e) {
-            return false;
-        }
+        return "refresh".equals(extractAllClaims(token).get("type", String.class));
     }
 
     public String extractUsername(String token) {
@@ -70,11 +66,7 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
-        try {
-            return extractAllClaims(token).getExpiration().after(new Date());
-        } catch (Exception e) {
-            return false;
-        }
+        return extractAllClaims(token).getExpiration().before(new Date());
     }
 
     private Claims extractAllClaims(String token) {

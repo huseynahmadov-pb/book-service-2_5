@@ -1,5 +1,6 @@
 package az.company.bookservice_2_5.config;
 
+import az.company.bookservice_2_5.model.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,12 +26,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
 
-        Map<String, Object> body = Map.of(
-                "code", "UNAUTHORIZED",
-                "message", "Authentication is required to access this resource",
-                "timestamp", LocalDateTime.now().toString()
-        );
+        var responseBody = ErrorResponse.builder()
+                .code("UNAUTHORIZED")
+                .message("Authentication is required to access this resource")
+                .timestamp(LocalDateTime.now())
+                .build();
 
-        objectMapper.writeValue(response.getWriter(), body);
+        objectMapper.writeValue(response.getWriter(), responseBody);
     }
 }

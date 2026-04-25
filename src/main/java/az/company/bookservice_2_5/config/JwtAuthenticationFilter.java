@@ -41,14 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         if (jwtService.isTokenValid(token)) {
-            sendUnauthorizedResponse(response, "Invalid or expired token");
             return;
         }
 
         String username = jwtService.extractUsername(token);
 
-        if (username == null || !tokenStorageService.isTokenValid(username, token)) {
-            sendUnauthorizedResponse(response, "Token is not active");
+        if (username == null || !tokenStorageService.isAccessTokenValid(username, token)) {
             return;
         }
 
@@ -64,18 +62,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-
-        Map<String, Object> body = Map.of(
-                "code", "UNAUTHORIZED",
-                "message", message,
-                "timestamp", LocalDateTime.now().toString()
-        );
-
-        objectMapper.writeValue(response.getWriter(), body);
     }
 }

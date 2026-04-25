@@ -9,6 +9,7 @@ import az.company.bookservice_2_5.model.request.RefreshTokenRequest;
 import az.company.bookservice_2_5.model.request.RegisterRequest;
 import az.company.bookservice_2_5.model.response.LoginResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,6 +30,7 @@ public class AuthService {
     private final UserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CacheManager cacheManager;
 
     public LoginResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
@@ -38,7 +40,7 @@ public class AuthService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String accessToken = jwtService.generateAccessToken(userDetails);
         String refreshToken = jwtService.generateRefreshToken(userDetails);
-        tokenStorageService.storeToken(userDetails.getUsername(), accessToken);
+        tokenStorageService.storeAccessToken(userDetails.getUsername(), accessToken);
         tokenStorageService.storeRefreshToken(userDetails.getUsername(), refreshToken);
 
         return LoginResponse.builder()
@@ -64,7 +66,7 @@ public class AuthService {
         String newAccessToken = jwtService.generateAccessToken(userDetails);
         String newRefreshToken = jwtService.generateRefreshToken(userDetails);
 
-        tokenStorageService.storeToken(username, newAccessToken);
+        tokenStorageService.storeAccessToken(username, newAccessToken);
         tokenStorageService.storeRefreshToken(username, newRefreshToken);
 
         return LoginResponse.builder()
@@ -78,12 +80,28 @@ public class AuthService {
             throw new IllegalArgumentException("Username already exists: " + request.getUsername());
         }
 
-        UserEntity user = UserEntity.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(Set.of(Role.ROLE_USER))
-                .build();
+        UserEntity user;
+        Long userCount;
+        var userCountCache = cacheManager.getCache("userCount").get("userCount", Long.class);
+        if (userCountCache == null) {
+            userCount = userRepository.findUserCount();
+            cacheManager.getCache("userCount").put("userCount", userCount);
+        }
 
+        if (userCountCache == null) {
+            user = UserEntity.builder()
+                    .username(request.getUsername())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .roles(Set.of(Role.ROLE_ADMIN, Role.ROLE_USER))
+                    .build();
+        } else {
+            user = UserEntity.builder()
+                    .username(request.getUsername())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .roles(Set.of(Role.ROLE_USER))
+                    .build();
+
+        }
         userRepository.save(user);
     }
 
@@ -96,7 +114,7 @@ public class AuthService {
     }
 
     public void logout(String username) {
-        tokenStorageService.removeToken(username);
+        tokenStorageService.removeAccessToken(username);
         tokenStorageService.removeRefreshToken(username);
     }
 }
