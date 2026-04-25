@@ -13,6 +13,10 @@ spring:
         show_sql: true
     hibernate:
       ddl-auto: update
+jwt:
+  secret-key: Y2xhdWRlLWNvZGUtYm9vay1zZXJ2aWNlLXNlY3JldC1rZXktZm9yLWp3dC10b2tlbi1nZW5lcmF0aW9u
+  access-token-expiration: 15 # in minutes
+  refresh-token-expiration: 1440 # in minutes (24 hours)
 
 springdoc:
   api-docs:

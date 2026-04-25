@@ -2,7 +2,11 @@ package az.company.bookservice_2_5.controller;
 
 import az.company.bookservice_2_5.exception.NotFoundException;
 import az.company.bookservice_2_5.model.response.ErrorResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,6 +19,27 @@ import static az.company.bookservice_2_5.model.enums.ErrorMessage.INTERNAL_ERROR
 
 @RestControllerAdvice
 public class ErrorHandler {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handle(BadCredentialsException exception) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code("UNAUTHORIZED")
+                .message("Invalid username or password")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handle(UsernameNotFoundException exception) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code("UNAUTHORIZED")
+                .message("Invalid username or password")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handle(MethodArgumentNotValidException exception) {
         List<String> validationErrors = new ArrayList<>();
@@ -26,7 +51,17 @@ public class ErrorHandler {
                 .timestamp(LocalDateTime.now())
                 .validationErrors(validationErrors)
                 .build();
-        return ResponseEntity.status(400).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handle(HttpMessageNotReadableException exception) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code("BAD_REQUEST")
+                .message("Malformed request body")
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(NotFoundException.class)
@@ -36,26 +71,26 @@ public class ErrorHandler {
                 .message(exception.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(400).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handle(IllegalArgumentException exception) {
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("ILLEGAL_ARGUMENT")
+                .code("BAD_REQUEST")
                 .message(exception.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(400).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handle(Exception exception) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(INTERNAL_ERROR.name())
-                .message(exception.getMessage())
+                .message(INTERNAL_ERROR.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(500).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
