@@ -13,8 +13,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +25,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final TokenStorageService tokenStorageService;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final CacheManager cacheManager;
@@ -37,11 +35,11 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String accessToken = jwtService.generateAccessToken(userDetails);
-        String refreshToken = jwtService.generateRefreshToken(userDetails);
-        tokenStorageService.storeAccessToken(userDetails.getUsername(), accessToken);
-        tokenStorageService.storeRefreshToken(userDetails.getUsername(), refreshToken);
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
+        String accessToken = jwtService.generateAccessToken(userEntity);
+        String refreshToken = jwtService.generateRefreshToken(userEntity);
+        tokenStorageService.storeAccessToken(userEntity.getUsername(), accessToken);
+        tokenStorageService.storeRefreshToken(userEntity.getUsername(), refreshToken);
 
         return LoginResponse.builder()
                 .accessToken(accessToken)
@@ -62,9 +60,9 @@ public class AuthService {
             throw new IllegalArgumentException("Refresh token is not active");
         }
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        String newAccessToken = jwtService.generateAccessToken(userDetails);
-        String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+        UserEntity userEntity = userDetailsService.loadUserByUsername(username);
+        String newAccessToken = jwtService.generateAccessToken(userEntity);
+        String newRefreshToken = jwtService.generateRefreshToken(userEntity);
 
         tokenStorageService.storeAccessToken(username, newAccessToken);
         tokenStorageService.storeRefreshToken(username, newRefreshToken);
@@ -82,10 +80,10 @@ public class AuthService {
 
         UserEntity user;
         Long userCount;
-        var userCountCache = cacheManager.getCache("userCount").get("userCount", Long.class);
+        var userCountCache = cacheManager.getCache("users").get("userCount", Long.class);
         if (userCountCache == null) {
             userCount = userRepository.findUserCount();
-            cacheManager.getCache("userCount").put("userCount", userCount);
+            cacheManager.getCache("users").put("userCount", userCount); // 0
         }
 
         if (userCountCache == null) {

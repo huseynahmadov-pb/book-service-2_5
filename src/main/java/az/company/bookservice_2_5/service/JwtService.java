@@ -1,12 +1,12 @@
 package az.company.bookservice_2_5.service;
 
+import az.company.bookservice_2_5.dao.entity.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +28,10 @@ public class JwtService {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    public String generateAccessToken(UserDetails userDetails) {
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
+    public String generateAccessToken(UserEntity userEntity) {
         return Jwts.builder()
-                .subject(userDetails.getUsername())
-                .claim("roles", roles)
+                .subject(userEntity.getUsername())
+                .claim("roles", userEntity.getRoles())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + (accessTokenExpiration * 60 * 1000)))
                 .signWith(getSigningKey())

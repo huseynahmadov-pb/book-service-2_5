@@ -6,7 +6,7 @@ spring:
     username: postgres
     password: password
   jpa:
-    open-in-view: false
+    open-in-view: false #LazyInitializationException
     properties:
       hibernate:
         format_sql: true
@@ -18,8 +18,19 @@ jwt:
   access-token-expiration: 15 # in minutes
   refresh-token-expiration: 1440 # in minutes (24 hours)
 
+logging:
+  level:
+    root: INFO
+    az.company.bookservice_2_5: DEBUG
+    org.springframework.aop: DEBUG
+    net.javacrumbs.shedlock: DEBUG
+
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+logstash:
+  host: localhost
+  port: 5044

@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByUsername(String username);
 
-    @Cacheable("userCount")
+    @Cacheable(cacheNames = "users", key = "userCount")
     @Query("SELECT COUNT(u) FROM UserEntity u")
     Long findUserCount();
 }
