@@ -13,10 +13,10 @@ public class PerformanceAspect {
 
     private static final long SLOW_EXECUTION_THRESHOLD_MS = 500;
 
-    @Around("within(az.company.bookservice_2_5.controller..*) || within(az.company.bookservice_2_5.service..*)")
+    @Around("within(az.company.bookservice_2_5.controller..*)")
     public Object monitorPerformance(ProceedingJoinPoint joinPoint) throws Throwable {
-        long startTime = System.currentTimeMillis();
-        Object result = joinPoint.proceed();
+        long startTime = System.currentTimeMillis(); // 1777714969318
+        var result = joinPoint.proceed();
         long duration = System.currentTimeMillis() - startTime;
 
         if (duration > SLOW_EXECUTION_THRESHOLD_MS) {
@@ -26,7 +26,6 @@ public class PerformanceAspect {
                     duration,
                     SLOW_EXECUTION_THRESHOLD_MS);
         }
-
         return result;
     }
 }

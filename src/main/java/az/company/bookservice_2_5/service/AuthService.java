@@ -9,6 +9,7 @@ import az.company.bookservice_2_5.model.request.RefreshTokenRequest;
 import az.company.bookservice_2_5.model.request.RegisterRequest;
 import az.company.bookservice_2_5.model.response.LoginResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
@@ -31,6 +33,7 @@ public class AuthService {
     private final CacheManager cacheManager;
 
     public LoginResponse login(LoginRequest request) {
+        log.info("Login attempt for user: {}", request.getUsername());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
@@ -41,6 +44,7 @@ public class AuthService {
         tokenStorageService.storeAccessToken(userEntity.getUsername(), accessToken);
         tokenStorageService.storeRefreshToken(userEntity.getUsername(), refreshToken);
 
+        log.info("Login successful for user: {}", request.getUsername());
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

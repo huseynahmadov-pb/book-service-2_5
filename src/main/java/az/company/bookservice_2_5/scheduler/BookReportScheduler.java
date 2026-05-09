@@ -14,8 +14,8 @@ public class BookReportScheduler {
 
     private final BookReportService bookReportService;
 
-    @Scheduled(cron = "0 0 0 * * *") // every midnight
-    @SchedulerLock(name = "dailyBookReport", lockAtLeastFor = "5m", lockAtMostFor = "30m")
+    @Scheduled(fixedRate = 5000) // every midnight
+    @SchedulerLock(name = "dailyBookReport", lockAtLeastFor = "PT10S", lockAtMostFor = "30m")
     public void generateDailyReport() {
         bookReportService.generateDailyReport();
     }
