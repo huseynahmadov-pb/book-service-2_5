@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'az.company'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 description = 'book-service_2_5'
 
 java {
@@ -56,6 +56,11 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+jar {
+    enabled = true
+    archiveFileName = "${project.name}.jar"
 }
 
 tasks.named('test') {
