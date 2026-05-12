@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: book-service-config
+  namespace: book-service
+data:
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/book_db"
+  SPRING_DATASOURCE_USERNAME: "postgres"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+  SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL: "true"
+  LOGGING_LEVEL_ROOT: "INFO"
+  LOGGING_LEVEL_AZ_COMPANY_BOOKSERVICE_2_5: "DEBUG"
+  LOGSTASH_HOST: "logstash"
+  LOGSTASH_PORT: "5044"
