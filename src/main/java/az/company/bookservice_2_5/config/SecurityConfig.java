@@ -46,6 +46,7 @@ public class SecurityConfig {
                     auth
                             .requestMatchers("/v1/auth/login", "/v1/auth/register", "/v1/auth/refresh").permitAll()
                             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                            .requestMatchers("/graphql", "/graphiql").permitAll()
                             .requestMatchers(HttpMethod.GET, "/v1/books/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/v1/authors/**").permitAll()
                             .requestMatchers(HttpMethod.POST, "/v1/books/**").authenticated()

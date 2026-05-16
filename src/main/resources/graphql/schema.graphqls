@@ -1,0 +1,22 @@
+type Query {
+    allBooks(page: Int = 0, size: Int = 10): BookPage!
+    bookByIsbn(isbn: String!): Book
+}
+
+type Book {
+    id: ID!
+    title: String!
+    isbn: String!
+    author: Author
+}
+
+type Author {
+    id: ID!
+    name: String!
+}
+
+type BookPage {
+    content: [Book!]!
+    totalElements: Int!
+    totalPages: Int!
+}

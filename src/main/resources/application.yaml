@@ -1,8 +1,11 @@
 spring:
   application:
     name: book-service
+  graphql:
+    graphiql:
+      enabled: true
   datasource:
-    url: jdbc:postgresql://postgres/book_db
+    url: jdbc:postgresql://localhost:5433/book_db
     username: postgres
     password: password
   jpa:
@@ -31,6 +34,10 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
+grpc:
+  server:
+    port: 9090
+
 logstash:
-  host: logstash
+  host: localhost
   port: 5044

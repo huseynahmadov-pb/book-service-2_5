@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "az.company.bookservice_2_5.grpc";
+
+package bookservice;
+
+service BookGrpcService {
+  rpc GetBookByIsbn (GetBookByIsbnRequest) returns (BookProto);
+  rpc GetAllBooks (GetAllBooksRequest) returns (BookListProto);
+}
+
+message GetBookByIsbnRequest {
+  string isbn = 1; // indexed field for efficient querying
+}
+
+message GetAllBooksRequest {
+  int32 page = 1;
+  int32 size = 2;
+}
+
+message AuthorProto {
+  int64 id = 1;
+  string name = 2;
+}
+
+message BookProto {
+  int64 id = 1;
+  string title = 2;
+  string isbn = 3;
+  AuthorProto author = 4;
+}
+
+message BookListProto {
+  repeated BookProto books = 1;
+  int64 total_elements = 2;
+  int32 total_pages = 3;
+}
